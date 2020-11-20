@@ -24,7 +24,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.TeleportTarget;
 
 import net.fabricmc.fabric.impl.dimension.FabricDimensionInternals;
-import org.jetbrains.annotations.Nullable;
+
 
 /**
  * This class consists exclusively of static methods that operate on world dimensions.
