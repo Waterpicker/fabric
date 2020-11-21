@@ -16,6 +16,9 @@
 
 package net.fabricmc.fabric.mixin.client.rendering;
 
+import net.fabricmc.fabric.api.client.rendering.v1.EnvironmentRenderers;
+import net.fabricmc.fabric.api.client.rendering.v1.FabricSkyPropertyBuilder;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -163,5 +166,52 @@ public abstract class MixinWorldRenderer {
 	@Inject(method = "reload", at = @At("HEAD"))
 	private void onReload(CallbackInfo ci) {
 		InvalidateRenderStateCallback.EVENT.invoker().onInvalidate();
+	}
+
+	@Inject(at = @At("HEAD"), method = "renderWeather", cancellable = true)
+	private void renderWeather(LightmapTextureManager manager, float tickDelta, double x, double y, double z, CallbackInfo info) {
+		if (this.client.world != null) {
+			this.client.world.getRegistryManager()
+					.getDimensionTypes().getKey(this.client.world.getDimension())
+					.map(EnvironmentRenderers::getWeatherRenderer)
+					.ifPresent(renderer -> {
+						renderer.render(this.client, manager, tickDelta, x, y, z);
+						info.cancel();
+					});
+
+			if (!info.isCancelled() && this.client.world.getSkyProperties() instanceof FabricSkyPropertyBuilder.FabricSkyproperties && ((FabricSkyPropertyBuilder.FabricSkyproperties) this.client.world.getSkyProperties()).canHideWeather()) {
+				info.cancel();
+			}
+		}
+	}
+
+	@Inject(at = @At("HEAD"), method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;FDDD)V", cancellable = true)
+	private void renderClouds(MatrixStack matrices, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo info) {
+		if (this.client.world != null) {
+			this.client.world.getRegistryManager()
+					.getDimensionTypes().getKey(this.client.world.getDimension())
+					.map(EnvironmentRenderers::getCloudRenderer)
+					.ifPresent(renderer -> {
+						renderer.render(this.client, matrices, tickDelta, cameraX, cameraY, cameraZ);
+						info.cancel();
+					});
+
+			if (!info.isCancelled() && this.client.world.getSkyProperties() instanceof FabricSkyPropertyBuilder.FabricSkyproperties && ((FabricSkyPropertyBuilder.FabricSkyproperties) this.client.world.getSkyProperties()).canHideClouds()) {
+				info.cancel();
+			}
+		}
+	}
+
+	@Inject(at = @At("HEAD"), method = "renderSky(Lnet/minecraft/client/util/math/MatrixStack;F)V", cancellable = true)
+	private void renderSky(MatrixStack matrices, float tickDelta, CallbackInfo info) {
+		if (this.client.world != null) {
+			this.client.world.getRegistryManager()
+					.getDimensionTypes().getKey(this.client.world.getDimension())
+					.map(EnvironmentRenderers::getSkyRenderer)
+					.ifPresent(renderer -> {
+						renderer.render(this.client, matrices, tickDelta);
+						info.cancel();
+					});
+		}
 	}
 }

@@ -16,6 +16,9 @@
 
 package net.fabricmc.fabric.test.rendering;
 
+import java.awt.Dimension;
+
+import net.minecraft.client.render.SkyProperties;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArmorMaterials;
@@ -23,8 +26,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.dimension.DimensionType;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.EnvironmentRenderers;
+import net.fabricmc.fabric.api.client.rendering.v1.FabricSkyPropertyBuilder;
 
 public class CustomArmorTests implements ModInitializer {
 	public static Item customModeledArmor;

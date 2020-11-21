@@ -9,7 +9,8 @@
     "MixinInGameHud",
     "MixinItem",
     "MixinItemColorMap",
-    "MixinWorldRenderer"
+    "MixinWorldRenderer",
+    "SkyPropertiesAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
